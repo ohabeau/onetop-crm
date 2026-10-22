@@ -46,7 +46,7 @@ router.post('/auth/logout', (req, res) => {
 });
 
 router.get('/me', requireAuth, (req, res) => {
-  res.json({ user: req.user, statuses: leads.STATUSES, companyName: getSetting('company.name', '리드CRM') });
+  res.json({ user: req.user, statuses: leads.STATUSES, companyName: getSetting('company.name', '원탑 CRM') });
 });
 
 router.post('/me/password', requireAuth, (req, res) => {
@@ -656,7 +656,7 @@ router.post('/settings/generate-key', requireAuth, isAdmin, (req, res) => {
 
 router.post('/settings/test-telegram', requireAuth, isAdmin, wrap(async (req, res) => {
   const chatId = (req.body || {}).chat_id || String(getSetting('telegram.chat_ids')).split(',')[0];
-  const r = await telegram.sendMessage(chatId, `✅ 텔레그램 연동 테스트 (${getSetting('company.name', '리드CRM')})`);
+  const r = await telegram.sendMessage(chatId, `✅ 텔레그램 연동 테스트 (${getSetting('company.name', '원탑 CRM')})`);
   res.json(r);
 }));
 
@@ -725,7 +725,7 @@ function landingBody(b) {
   let fields = b.fields_json;
   if (Array.isArray(fields)) fields = JSON.stringify(fields);
   try { JSON.parse(fields || '[]'); } catch { throw Object.assign(new Error('입력 항목 JSON 형식이 올바르지 않습니다.'), { status: 400 }); }
-  return [b.title, b.headline || null, b.description || null, b.image_url || null, b.color || '#2563eb', fields || JSON.stringify(DEFAULT_LANDING_FIELDS),
+  return [b.title, b.headline || null, b.description || null, b.image_url || null, b.color || '#1a62fb', fields || JSON.stringify(DEFAULT_LANDING_FIELDS),
     b.button_text || '무료 상담 신청', b.done_message || '신청이 완료되었습니다. 곧 연락드리겠습니다.', b.campaign_id ? Number(b.campaign_id) : null];
 }
 

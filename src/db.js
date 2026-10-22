@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS landing_pages (
   headline TEXT,
   description TEXT,
   image_url TEXT,
-  color TEXT NOT NULL DEFAULT '#2563eb',
+  color TEXT NOT NULL DEFAULT '#1a62fb',
   fields_json TEXT NOT NULL,         -- [{key,label,type,options,required}]
   button_text TEXT NOT NULL DEFAULT '무료 상담 신청',
   done_message TEXT NOT NULL DEFAULT '신청이 완료되었습니다. 곧 연락드리겠습니다.',

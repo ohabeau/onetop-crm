@@ -31,4 +31,4 @@ app.use((err, _req, res, _next) => {
 setInterval(() => leads.processScheduled(), 60 * 1000).unref();
 
 const port = Number(process.env.PORT) || 3000;
-app.listen(port, () => console.log(`리드 CRM 실행 중: http://localhost:${port}`));
+app.listen(port, () => console.log(`원탑(One TOP) CRM 실행 중: http://localhost:${port}`));

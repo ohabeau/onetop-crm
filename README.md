@@ -1,4 +1,6 @@
-# 리드 CRM
+# 원탑 CRM (One TOP CRM)
+
+![One TOP CRM](public/logo.png)
 
 광고로 들어온 고객 DB를 실시간으로 모으고, 상담·구매까지 관리하고, 텔레그램과 카카오 알림톡을 자동으로 보내는 웹앱입니다.
 
@@ -29,7 +31,7 @@ npm start           # http://localhost:3000
 첫 실행 시 운영자 계정 `admin / admin1234` 가 만들어집니다 (`ADMIN_USER`, `ADMIN_PASSWORD` 환경변수로 변경). 로그인 후 바로 비밀번호를 바꾸세요.
 데모 계정: 업체 관리자 `hanbit / demo1234`, 상담원 `hanbit1 / demo1234`.
 
-Docker: `docker build -t lead-crm . && docker run -p 3000:3000 -v leadcrm:/data lead-crm`
+Docker: `docker build -t onetop-crm . && docker run -p 3000:3000 -v onetop:/data onetop-crm`
 
 데이터는 `data/app.db` 한 파일에 저장됩니다. 서버리스(Vercel 등)가 아닌, 디스크가 유지되는 서버(VPS, Railway, Render, Fly.io 등)에 올려야 합니다. 메타 웹훅을 받으려면 HTTPS 주소가 필요합니다.
 

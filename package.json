@@ -1,5 +1,5 @@
 {
-  "name": "lead-crm",
+  "name": "onetop-crm",
   "version": "1.0.0",
   "description": "광고 DB 수집 · CRM · 텔레그램/카카오 알림톡 자동화",
   "main": "src/server.js",

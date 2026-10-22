@@ -7,9 +7,10 @@
   --text: #111418;
   --text-2: #4b5260;
   --muted: #8a909c;
-  --primary: #1e3a8a;
-  --primary-2: #2a78d6;
-  --primary-soft: #e8f0fc;
+  --primary: #1a62fb;
+  --primary-2: #1a62fb;
+  --primary-soft: #e8effe;
+  --ink: #0a111e;
   --accent: #eb6834;
   --good: #16803c;
   --good-soft: #e5f5ea;
@@ -26,7 +27,7 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --bg: #111214; --surface: #1a1b1e; --surface-2: #202226; --border: #2d3036; --text: #f0efec; --text-2: #c3c2b7; --muted: #8d8f96;
-    --primary: #8fb4f5; --primary-2: #3987e5; --primary-soft: #1d2a40; --accent: #d95926;
+    --primary: #5b8dff; --primary-2: #5b8dff; --primary-soft: #18264a; --accent: #d95926;
     --good: #4cc27a; --good-soft: #15291d; --warn: #e0a440; --warn-soft: #2e2412; --bad: #f07070; --bad-soft: #351919;
     --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
     --grid: #26282d; --shadow: none;
@@ -35,7 +36,7 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #111214; --surface: #1a1b1e; --surface-2: #202226; --border: #2d3036; --text: #f0efec; --text-2: #c3c2b7; --muted: #8d8f96;
-  --primary: #8fb4f5; --primary-2: #3987e5; --primary-soft: #1d2a40; --accent: #d95926;
+  --primary: #5b8dff; --primary-2: #5b8dff; --primary-soft: #18264a; --accent: #d95926;
   --good: #4cc27a; --good-soft: #15291d; --warn: #e0a440; --warn-soft: #2e2412; --bad: #f07070; --bad-soft: #351919;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
   --grid: #26282d; --shadow: none;
@@ -67,7 +68,12 @@ h3 { font-size: 14px; }
   padding: 18px 12px; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 4px;
 }
 .brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; font-weight: 800; font-size: 16px; }
-.brand img { width: 28px; height: 28px; }
+.brand img.logo { height: 30px; width: auto; display: block; }
+.mobile-top .brand img.logo { height: 24px; }
+.logo-d { display: none !important; }
+:root[data-theme="dark"] .logo-l { display: none !important; }
+:root[data-theme="dark"] .logo-d { display: block !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo-l { display: none !important; } :root:not([data-theme="light"]) .logo-d { display: block !important; } }
 .nav a {
   display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 9px; color: var(--text-2); font-weight: 600;
 }
@@ -86,7 +92,7 @@ h3 { font-size: 14px; }
   .side { display: none; }
   .main { padding: 14px 16px 90px; }
   .mobile-top { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; font-weight: 800; }
-  .mobile-top img { width: 24px; }
+  
   .tabbar {
     display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
     background: var(--surface); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom);
@@ -229,7 +235,7 @@ pre { background: var(--surface-2); border: 1px solid var(--border); border-radi
 /* 로그인 */
 .auth { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
 .auth-box { width: min(920px, 100%); display: grid; grid-template-columns: 1fr 1fr; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-.auth-hero { background: linear-gradient(160deg, #1e3a8a, #2a78d6); color: #fff; padding: 36px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
+.auth-hero { background: linear-gradient(160deg, #0a111e 0%, #0f2a6b 55%, #1a62fb 100%); color: #fff; padding: 36px; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; }
 .auth-hero ul { margin: 0; padding-left: 18px; line-height: 1.9; opacity: .92; }
 .auth-form { padding: 36px; display: grid; gap: 14px; align-content: center; }
 @media (max-width: 760px) { .auth-box { grid-template-columns: 1fr; } .auth-hero { padding: 24px; } .auth-hero ul { display: none; } .auth-form { padding: 24px; } }

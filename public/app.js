@@ -1,12 +1,13 @@
-/* 리드 CRM 프론트엔드 (의존성 없는 SPA, 해시 라우팅) */
+/* 원탑(One TOP) CRM 프론트엔드 (의존성 없는 SPA, 해시 라우팅) */
 'use strict';
 
 const S = {
-  me: null, statuses: [], companyName: '리드 CRM',
+  me: null, statuses: [], companyName: '원탑 CRM',
   partners: [], users: [], campaigns: [], templates: [],
   range: null, charts: [], leadView: 'list',
 };
 const PLATFORM = { meta: '메타', google: '구글', naver: '네이버', kakao: '카카오', landing: '랜딩', sheet: '구글시트', manual: '직접등록', import: '엑셀' };
+const LOGO = '<img class="logo logo-l" src="/logo.png" alt="원탑 CRM"><img class="logo logo-d" src="/logo-dark.png" alt="원탑 CRM">';
 const ROLE = { admin: '운영자', manager: '관리자', agent: '상담원' };
 
 /* ───────── 유틸 ───────── */
@@ -182,7 +183,7 @@ function shell(active) {
   const mobile = items.filter((n) => ['dashboard', 'leads', 'ads', 'kakao', 'settings'].includes(n[0]));
   return `<div class="shell">
     <aside class="side">
-      <div class="brand"><img src="/icon.svg" alt="">${esc(S.companyName)}</div>
+      <a class="brand" href="#/dashboard">${LOGO}</a>
       <nav class="nav">${items.map(([k, l, i]) => `<a href="#/${k}" class="${active === k ? 'on' : ''}"><span class="ico">${i}</span>${l}</a>`).join('')}</nav>
       <div class="me">
         <div><b>${esc(S.me.name)}</b> <span class="muted small">${ROLE[S.me.role]}</span></div>
@@ -191,7 +192,7 @@ function shell(active) {
       </div>
     </aside>
     <div>
-      <div class="mobile-top"><img src="/icon.svg" alt="">${esc(S.companyName)}<span class="spacer"></span><button class="btn sm" id="logout-m">로그아웃</button></div>
+      <div class="mobile-top"><a class="brand" href="#/dashboard" style="padding:0">${LOGO}</a><span class="spacer"></span><button class="btn sm" id="logout-m">로그아웃</button></div>
       <main class="main" id="view"></main>
     </div>
     <nav class="tabbar">${mobile.map(([k, l, i]) => `<a href="#/${k}" class="${active === k ? 'on' : ''}"><span class="ico">${i}</span>${l}</a>`).join('')}</nav>
@@ -216,7 +217,7 @@ function mountShell(active) {
 function authFrame(inner) {
   return `<div class="auth"><div class="auth-box">
     <div class="auth-hero">
-      <div class="brand" style="padding:0;color:#fff"><img src="/icon.svg" alt="" style="width:32px">${esc(S.companyName)}</div>
+      <div class="brand" style="padding:0"><img class="logo" src="/logo-dark.png" alt="One TOP CRM" style="height:34px"></div>
       <div><h1 style="font-size:24px;margin-bottom:14px">광고 DB가 들어오는 순간부터<br>매출까지, 한 곳에서.</h1>
       <ul><li>메타·구글·네이버·카카오·랜딩 DB 실시간 수집</li><li>신규 DB 텔레그램 알림 + 고객 알림톡 자동 발송</li>
       <li>부재·예약·구매 단계별 알림톡 자동화</li><li>광고비 · DB 단가 · 매출 · ROAS 대시보드</li><li>직원 계정과 응답 속도 관리</li></ul></div>
@@ -797,7 +798,7 @@ async function pageLanding(view) {
 }
 
 function landingEditor(p, defaults, done) {
-  const v = p || { title: '', slug: '', headline: '', description: '', color: '#2563eb', button_text: '무료 상담 신청', done_message: '신청이 완료되었습니다. 곧 연락드리겠습니다.', fields_json: JSON.stringify(defaults), active: 1 };
+  const v = p || { title: '', slug: '', headline: '', description: '', color: '#1a62fb', button_text: '무료 상담 신청', done_message: '신청이 완료되었습니다. 곧 연락드리겠습니다.', fields_json: JSON.stringify(defaults), active: 1 };
   let fields = [];
   try { fields = JSON.parse(v.fields_json); } catch { fields = defaults; }
   const fieldRow = (f) => `<tr><td><input type="text" data-k="label" value="${esc(f.label)}"></td>
@@ -1227,7 +1228,7 @@ async function boot() {
     S.me = me.user;
     S.statuses = me.statuses;
     S.companyName = me.companyName;
-    document.title = me.companyName;
+    document.title = '원탑 CRM';
     await loadRefs();
   } catch {
     S.me = null;
