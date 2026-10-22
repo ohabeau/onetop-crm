@@ -15,6 +15,7 @@ app.use(express.json({ limit: '5mb', verify: (req, _res, buf) => { req.rawBody =
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(auth.loadUser);
 
+app.get('/healthz', (_req, res) => res.json({ ok: true }));
 app.use('/webhooks', require('./routes/webhooks'));
 app.use(require('./routes/public'));
 app.use('/api', require('./routes/api'));

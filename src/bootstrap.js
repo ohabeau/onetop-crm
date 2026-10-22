@@ -6,10 +6,14 @@ const auth = require('./auth');
 function bootstrap() {
   if (!db.prepare('SELECT 1 FROM users LIMIT 1').get()) {
     const username = process.env.ADMIN_USER || 'admin';
-    const password = process.env.ADMIN_PASSWORD || 'admin1234';
+    // 운영 환경에서 비밀번호를 지정하지 않으면 추측 불가능한 값을 만들어 로그에 한 번만 출력
+    const password = process.env.ADMIN_PASSWORD
+      || (process.env.NODE_ENV === 'production' ? crypto.randomBytes(9).toString('base64url') : 'admin1234');
     db.prepare("INSERT INTO users(username, password_hash, name, role) VALUES(?, ?, '운영자', 'admin')").run(username, auth.hashPassword(password));
     console.log(`[bootstrap] 운영자 계정 생성: ${username} / ${process.env.ADMIN_PASSWORD ? '(환경변수 비밀번호)' : password}`);
   }
+  // Railway 는 공개 도메인을 환경변수로 알려준다
+  if (!getSetting('app.base_url') && process.env.RAILWAY_PUBLIC_DOMAIN) setSetting('app.base_url', `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`);
   if (!getSetting('lead.api_key')) setSetting('lead.api_key', crypto.randomBytes(18).toString('base64url'));
   if (!getSetting('meta.verify_token')) setSetting('meta.verify_token', crypto.randomBytes(12).toString('base64url'));
   if (!db.prepare('SELECT 1 FROM kakao_templates LIMIT 1').get()) {

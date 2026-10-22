@@ -28,12 +28,23 @@ function range(q) {
 
 /* ───────────── 인증 ───────────── */
 
+// 로그인 시도 제한: IP 당 15분에 10회 실패까지
+const loginFails = new Map();
 router.post('/auth/login', (req, res) => {
+  const ip = req.ip || 'unknown';
+  const now = Date.now();
+  const rec = loginFails.get(ip);
+  if (rec && rec.until > now && rec.n >= 10) return res.status(429).json({ error: '로그인 시도가 너무 많습니다. 15분 뒤 다시 시도해 주세요.' });
   const { username, password } = req.body || {};
   const u = db.prepare('SELECT * FROM users WHERE username = ? AND active = 1').get(String(username || ''));
   if (!u || !auth.verifyPassword(String(password || ''), u.password_hash)) {
+    const cur = rec && rec.until > now ? rec : { n: 0, until: now + 15 * 60e3 };
+    cur.n += 1;
+    loginFails.set(ip, cur);
+    if (loginFails.size > 5000) for (const [k, v] of loginFails) if (v.until <= now) loginFails.delete(k);
     return res.status(401).json({ error: '아이디 또는 비밀번호가 올바르지 않습니다.' });
   }
+  loginFails.delete(ip);
   const token = auth.createSession(u.id);
   res.setHeader('Set-Cookie', `sid=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${14 * 86400}${req.secure ? '; Secure' : ''}`);
   res.json({ ok: true });
