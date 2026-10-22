@@ -1,0 +1,21 @@
+{
+  "name": "lead-crm",
+  "version": "1.0.0",
+  "description": "광고 DB 수집 · CRM · 텔레그램/카카오 알림톡 자동화",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --no-warnings src/server.js",
+    "dev": "node --no-warnings --watch src/server.js",
+    "seed:demo": "node --no-warnings scripts/seed-demo.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^4.4.1",
+    "express": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}
