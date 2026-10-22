@@ -31,5 +31,12 @@ app.use((err, _req, res, _next) => {
 // 지연 알림톡 처리
 setInterval(() => leads.processScheduled(), 60 * 1000).unref();
 
+// 메타 광고비: 연동돼 있으면 1시간마다 최근 3일치를 다시 받아 덮어쓴다 (당일 집계가 계속 바뀌므로)
+const { syncInsights } = require('./routes/api');
+const kst = (d) => new Date(Date.now() + 9 * 3600e3 - d * 86400e3).toISOString().slice(0, 10);
+const autoSync = () => syncInsights(kst(2), kst(0)).catch((e) => console.error('[meta sync]', e.message));
+setTimeout(autoSync, 30 * 1000).unref();
+setInterval(autoSync, 60 * 60 * 1000).unref();
+
 const port = Number(process.env.PORT) || 3000;
 app.listen(port, () => console.log(`원탑(One TOP) CRM 실행 중: http://localhost:${port}`));

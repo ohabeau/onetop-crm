@@ -287,18 +287,32 @@ router.post('/ad-stats', requireAuth, isAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-router.post('/meta/sync-insights', requireAuth, isAdmin, wrap(async (req, res) => {
-  const { from, to } = range(req.body || {});
+async function syncInsights(from, to) {
   const rows = await meta.fetchInsights(from, to);
-  if (rows === null) return res.status(400).json({ error: '설정에서 Meta 광고 계정 ID와 액세스 토큰을 먼저 입력하세요.' });
-  let n = 0;
+  if (rows === null) return null;
   for (const r of rows) {
     const cid = leads.upsertCampaign({ external_id: r.campaign_id, name: r.campaign_name, platform: 'meta' });
     saveStat(cid, r.adset_name, r.ad_name, r.date_start, r.spend, r.impressions, r.clicks);
-    n++;
   }
   setSetting('meta.last_sync', new Date().toISOString());
+  return rows.length;
+}
+
+router.post('/meta/sync-insights', requireAuth, isAdmin, wrap(async (req, res) => {
+  const { from, to } = range(req.body || {});
+  const n = await syncInsights(from, to);
+  if (n === null) return res.status(400).json({ error: '설정에서 Meta 광고 계정 ID와 액세스 토큰을 먼저 입력하세요.' });
   res.json({ ok: true, rows: n });
+}));
+
+router.post('/meta/connect-page', requireAuth, isAdmin, wrap(async (req, res) => {
+  const pageId = String((req.body || {}).page_id || getSetting('meta.page_id') || '').trim();
+  if (!pageId) return res.status(400).json({ error: '페이지 ID를 입력하세요.' });
+  const r = await meta.connectPage(pageId);
+  setSetting('meta.page_id', pageId);
+  setSetting('meta.page_name', r.pageName || '');
+  setSetting('meta.page_access_token', r.pageToken);
+  res.json({ ok: true, page: r.pageName });
 }));
 
 /* ───────────── 리드(CRM) ───────────── */
@@ -630,7 +644,7 @@ router.put('/users/:id', requireAuth, isManager, (req, res) => {
 
 const SETTING_KEYS = [
   'company.name', 'company.phone', 'app.base_url',
-  'meta.verify_token', 'meta.app_secret', 'meta.page_access_token', 'meta.ads_access_token', 'meta.ad_account_id', 'meta.last_sync',
+  'meta.verify_token', 'meta.app_secret', 'meta.page_id', 'meta.page_name', 'meta.page_access_token', 'meta.ads_access_token', 'meta.ad_account_id', 'meta.last_sync',
   'telegram.bot_token', 'telegram.chat_ids', 'telegram.notify_kakao',
   'kakao.provider', 'kakao.api_key', 'kakao.api_secret', 'kakao.user_id', 'kakao.pf_id', 'kakao.sender_phone', 'kakao.disable_sms',
   'lead.api_key', 'lead.auto_assign', 'lead.duplicate_days', 'lead.field_map',
@@ -801,3 +815,4 @@ router.post('/signups/:id/reject', requireAuth, isAdmin, (req, res) => {
 });
 
 module.exports = router;
+module.exports.syncInsights = syncInsights;

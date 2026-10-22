@@ -54,4 +54,20 @@ async function fetchInsights(since, until) {
   return out;
 }
 
-module.exports = { verifySignature, fetchLead, fetchFormName, fetchInsights };
+// 페이지를 이 앱의 leadgen 웹훅에 구독시킨다. 페이지 토큰이 없으면 광고 API 토큰(시스템 사용자)으로 받아온다.
+async function connectPage(pageId) {
+  let pageToken = getSetting('meta.page_access_token');
+  if (!pageToken) {
+    const userToken = getSetting('meta.ads_access_token');
+    if (!userToken) throw new Error('페이지 액세스 토큰 또는 광고 API 토큰이 필요합니다.');
+    pageToken = (await graphGet(`${pageId}?fields=access_token,name`, userToken)).access_token;
+    if (!pageToken) throw new Error('이 토큰으로는 페이지 토큰을 받을 수 없습니다. 페이지 권한을 확인하세요.');
+  }
+  const r = await fetch(`${GRAPH}/${pageId}/subscribed_apps?subscribed_fields=leadgen&access_token=${encodeURIComponent(pageToken)}`, { method: 'POST' });
+  const body = await r.json();
+  if (!r.ok || body.error) throw new Error(body.error ? body.error.message : `HTTP ${r.status}`);
+  const page = await graphGet(`${pageId}?fields=name`, pageToken);
+  return { pageToken, pageName: page.name };
+}
+
+module.exports = { verifySignature, fetchLead, fetchFormName, fetchInsights, connectPage };

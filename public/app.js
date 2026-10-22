@@ -1020,7 +1020,8 @@ async function pageSettings(view) {
         <label class="f">콜백 URL<input type="text" readonly value="${esc(origin)}/webhooks/meta" class="copy-in"></label>
         <label class="f">확인 토큰 (Verify Token)<div class="row" style="flex-wrap:nowrap"><input type="text" name="meta.verify_token" value="${v('meta.verify_token')}"><button type="button" class="btn sm" data-gen="meta.verify_token">새로 만들기</button></div></label>
         <label class="f">앱 시크릿 <span class="hint">서명 검증용</span><input type="text" name="meta.app_secret" value="${v('meta.app_secret')}"></label>
-        <label class="f">페이지 액세스 토큰<input type="text" name="meta.page_access_token" value="${v('meta.page_access_token')}"></label>
+        <label class="f">페이지 ID ${s['meta.page_name'] ? `<span class="hint">${esc(s['meta.page_name'])}</span>` : ''}<div class="row" style="flex-wrap:nowrap"><input type="text" name="meta.page_id" value="${v('meta.page_id')}"><button type="button" class="btn sm" id="connect-page">페이지 연결</button></div></label>
+        <label class="f">페이지 액세스 토큰 <span class="hint">비우면 '페이지 연결'이 광고 API 토큰으로 받아옴</span><input type="text" name="meta.page_access_token" value="${v('meta.page_access_token')}"></label>
         <label class="f">광고 계정 ID<input type="text" name="meta.ad_account_id" value="${v('meta.ad_account_id')}" placeholder="act_1234567890"></label>
         <label class="f">광고 API 토큰 (ads_read)<input type="text" name="meta.ads_access_token" value="${v('meta.ads_access_token')}"></label>
       </form>
@@ -1118,6 +1119,12 @@ async function pageSettings(view) {
     toast(r.status === 'sent' ? '발송 요청했습니다.' : r.status === 'mock' ? '테스트 모드: 기록만 남겼습니다.' : `실패: ${String(r.response).slice(0, 80)}`, r.status === 'failed');
   }));
   $('#sim', view).addEventListener('click', simulateDialog);
+  $('#connect-page', view).addEventListener('click', guard(async () => {
+    await saveAll();
+    const r = await api('/meta/connect-page', { method: 'POST', body: { page_id: $('[name="meta.page_id"]', view).value } });
+    toast(`'${r.page}' 페이지의 리드가 이 CRM으로 들어오도록 연결했습니다.`);
+    pageSettings(view);
+  }));
   $('#whlog', view).addEventListener('click', guard(async () => {
     const rows = await api('/webhook-logs');
     modal(`<h2>웹훅 수신 기록</h2><div class="table-wrap"><table><thead><tr><th>시각</th><th>출처</th><th>결과</th><th>내용</th></tr></thead><tbody>
