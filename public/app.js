@@ -904,7 +904,7 @@ const VARS = ['이름', '연락처', '상호', '업종', '지역', '성별', '�
 async function pageKakao(view) {
   S.templates = await api('/kakao-templates');
   const trig = (t) => (t.trigger_type === 'lead_created' ? 'DB 접수 시' : t.trigger_type === 'status_change' ? `상태 → ${t.trigger_value}` : '수동 발송');
-  view.innerHTML = `<div class="page-head"><h1>알림톡 자동화</h1>${isAdmin() ? '<button class="btn primary" id="new">+ 템플릿 추가</button>' : ''}</div>
+  view.innerHTML = `<div class="page-head"><h1>알림톡 자동화</h1>${isAdmin() ? '<button class="btn" id="import-solapi">솔라피 템플릿 불러오기</button><button class="btn primary" id="new">+ 템플릿 추가</button>' : ''}</div>
     <div class="notice" style="margin-bottom:14px">고객이 DB를 남기거나 상태가 바뀌면 연결된 알림톡이 자동으로 나갑니다. <b>유형 조건</b>을 걸면 업종·성별 등 고객 유형별로 다른 템플릿이 나갑니다. 템플릿은 카카오 비즈니스 채널에서 <b>검수 완료된 코드</b>와 내용이 같아야 발송됩니다.</div>
     <div class="grid g2">${S.templates.map((t) => `<div class="card">
       <div class="card-head"><h2>${esc(t.name)}</h2>${t.active ? '<span class="badge ok">사용</span>' : '<span class="badge">중지</span>'}</div>
@@ -914,6 +914,11 @@ async function pageKakao(view) {
       ${isAdmin() ? `<div class="row" style="margin-top:10px"><span class="spacer"></span><button class="btn sm" data-e="${t.id}">수정</button></div>` : ''}
     </div>`).join('')}</div>`;
   if ($('#new', view)) $('#new', view).addEventListener('click', () => tplDialog(null, () => pageKakao(view)));
+  if ($('#import-solapi', view)) $('#import-solapi', view).addEventListener('click', guard(async () => {
+    const r = await api('/kakao-templates/import-solapi', { method: 'POST' });
+    toast(`승인된 템플릿 ${r.added}개 추가, ${r.updated}개 갱신${r.skipped.length ? `, 검수 중·반려 ${r.skipped.length}개 제외` : ''}. 각 템플릿의 발송 시점을 지정해 주세요.`);
+    pageKakao(view);
+  }));
   $$('[data-e]', view).forEach((b) => b.addEventListener('click', () => tplDialog(S.templates.find((t) => t.id === Number(b.dataset.e)), () => pageKakao(view))));
 }
 

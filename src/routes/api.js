@@ -685,6 +685,29 @@ router.post('/settings/test-telegram', requireAuth, isAdmin, wrap(async (req, re
   res.json(r);
 }));
 
+// 솔라피에서 검수 승인된 템플릿을 가져와 코드 기준으로 추가/갱신한다. 발송 시점(트리거)은 CRM에서 지정.
+router.post('/kakao-templates/import-solapi', requireAuth, isAdmin, wrap(async (req, res) => {
+  const list = await kakao.listSolapiTemplates();
+  let added = 0;
+  let updated = 0;
+  const skipped = [];
+  for (const t of list) {
+    const code = t.templateId || t.id;
+    if (!code || !t.content) continue;
+    if (t.status && t.status !== 'APPROVED') { skipped.push(`${t.name || code} (${t.status})`); continue; }
+    const buttons = Array.isArray(t.buttons) && t.buttons.length ? JSON.stringify(t.buttons) : null;
+    const cur = db.prepare('SELECT id FROM kakao_templates WHERE code = ?').get(code);
+    if (cur) {
+      db.prepare('UPDATE kakao_templates SET name = ?, content = ?, buttons_json = ? WHERE id = ?').run(t.name || code, t.content, buttons, cur.id);
+      updated++;
+    } else {
+      db.prepare("INSERT INTO kakao_templates(code, name, content, buttons_json, trigger_type, active) VALUES(?, ?, ?, ?, 'manual', 1)").run(code, t.name || code, t.content, buttons);
+      added++;
+    }
+  }
+  res.json({ ok: true, total: list.length, added, updated, skipped });
+}));
+
 router.post('/settings/test-kakao', requireAuth, isAdmin, wrap(async (req, res) => {
   const { phone, template_id } = req.body || {};
   const tpl = db.prepare('SELECT * FROM kakao_templates WHERE id = ?').get(template_id) || db.prepare('SELECT * FROM kakao_templates LIMIT 1').get();

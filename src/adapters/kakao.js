@@ -8,14 +8,35 @@ function normalizePhone(p) {
   return String(p || '').replace(/[^0-9]/g, '');
 }
 
-async function sendSolapi({ to, templateCode, text, buttons }) {
+function solapiAuth() {
   const apiKey = getSetting('kakao.api_key');
   const apiSecret = getSetting('kakao.api_secret');
-  const pfId = getSetting('kakao.pf_id');
-  const from = normalizePhone(getSetting('kakao.sender_phone'));
   const date = new Date().toISOString();
   const salt = crypto.randomBytes(16).toString('hex');
   const signature = crypto.createHmac('sha256', apiSecret).update(date + salt).digest('hex');
+  return `HMAC-SHA256 apiKey=${apiKey}, date=${date}, salt=${salt}, signature=${signature}`;
+}
+
+// 솔라피에 등록된 알림톡 템플릿 목록 (검수 상태 포함)
+async function listSolapiTemplates() {
+  if (!getSetting('kakao.api_key') || !getSetting('kakao.api_secret')) throw new Error('솔라피 API Key와 Secret을 먼저 저장하세요.');
+  const out = [];
+  let startKey = '';
+  for (let i = 0; i < 20; i++) {
+    const q = new URLSearchParams({ limit: '100', ...(startKey ? { startKey } : {}) });
+    const r = await fetch(`https://api.solapi.com/kakao/v2/templates?${q}`, { headers: { Authorization: solapiAuth() } });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(body.errorMessage || body.message || `솔라피 응답 오류 (${r.status})`);
+    out.push(...(body.templateList || body.list || []));
+    if (!body.nextKey || body.nextKey === startKey) break;
+    startKey = body.nextKey;
+  }
+  return out;
+}
+
+async function sendSolapi({ to, templateCode, text, buttons }) {
+  const pfId = getSetting('kakao.pf_id');
+  const from = normalizePhone(getSetting('kakao.sender_phone'));
   const message = {
     to, from, text,
     kakaoOptions: { pfId, templateId: templateCode, disableSms: getSetting('kakao.disable_sms') === '1' },
@@ -25,7 +46,7 @@ async function sendSolapi({ to, templateCode, text, buttons }) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `HMAC-SHA256 apiKey=${apiKey}, date=${date}, salt=${salt}, signature=${signature}`,
+      Authorization: solapiAuth(),
     },
     body: JSON.stringify({ messages: [message] }),
   });
@@ -72,4 +93,4 @@ async function sendAlimtalk({ to, templateCode, text, buttons, subject }) {
   }
 }
 
-module.exports = { sendAlimtalk, normalizePhone };
+module.exports = { sendAlimtalk, normalizePhone, listSolapiTemplates };
