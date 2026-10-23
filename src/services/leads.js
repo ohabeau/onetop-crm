@@ -142,12 +142,15 @@ function getLead(id) {
 function renderTemplate(content, lead) {
   const extra = (() => { try { return JSON.parse(lead.extra_json || '{}'); } catch { return {}; } })();
   const vars = {
-    이름: lead.name, 고객명: lead.name, 연락처: lead.phone, 상호: lead.company, 회사명: lead.company,
+    이름: lead.name, 고객명: lead.name, 연락처: lead.phone, 상호: lead.company,
     업종: lead.business_type, 지역: lead.region, 매출: lead.annual_revenue, 필요자금: lead.desired_amount,
     상태: lead.status, 담당자: lead.assignee_name, 파트너: lead.partner_name, 캠페인: lead.campaign_name,
     성별: lead.gender, 연령대: lead.age_group, 구매금액: lead.sale_amount ? Number(lead.sale_amount).toLocaleString('ko-KR') : '',
     접수일: (lead.created_at || '').slice(0, 10), 콜백일시: lead.callback_at || '',
     회사대표번호: getSetting('company.phone'), 업체명: lead.partner_name || getSetting('company.name'),
+    // 솔라피 템플릿에서 흔히 쓰는 이름: 회사명 = 보내는 업체, 회신번호 = 대표번호(없으면 발신번호)
+    회사명: lead.partner_name || getSetting('company.name'),
+    회신번호: getSetting('company.phone') || getSetting('kakao.sender_phone'),
     ...extra,
   };
   return content.replace(/#\{([^}]+)\}/g, (_, k) => (vars[k.trim()] != null ? String(vars[k.trim()]) : ''));

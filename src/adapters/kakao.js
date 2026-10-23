@@ -51,7 +51,10 @@ async function sendSolapi({ to, templateCode, text, buttons }) {
     body: JSON.stringify({ messages: [message] }),
   });
   const body = await r.text();
-  return { status: r.ok ? 'sent' : 'failed', provider: 'solapi', response: body.slice(0, 1000) };
+  // send-many/detail 은 200 이어도 개별 메시지가 failedMessageList 로 실패할 수 있음
+  let failed = !r.ok;
+  try { failed = failed || (JSON.parse(body).failedMessageList || []).length > 0; } catch { /* 본문이 JSON 이 아니면 상태코드로 판단 */ }
+  return { status: failed ? 'failed' : 'sent', provider: 'solapi', response: body.slice(0, 1000) };
 }
 
 async function sendAligo({ to, templateCode, text, buttons, subject }) {
