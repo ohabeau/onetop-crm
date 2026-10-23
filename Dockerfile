@@ -4,6 +4,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY . .
-VOLUME ["/data"]
+# /data 는 Railway Volume(또는 docker run -v)으로 마운트
 EXPOSE 3000
 CMD ["npm", "start"]
