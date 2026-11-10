@@ -810,6 +810,17 @@ router.delete('/landing-pages/:id', requireAuth, isManager, (req, res) => {
   res.json({ ok: true });
 });
 
+/* ───────────── DB 백업 다운로드 (운영자) ─────────────
+   새 CRM(보험 CRM 기반 합친 버전)으로 옮길 때 이 파일을 [설정 → 원탑 CRM에서 옮겨 오기]에 올리면 된다. */
+router.get('/admin/backup', requireAuth, isAdmin, (req, res) => {
+  const path = require('path');
+  const fs = require('fs');
+  const os = require('os');
+  const file = path.join(os.tmpdir(), `onetop-backup-${Date.now()}.db`);
+  db.exec(`VACUUM INTO '${file.replace(/'/g, "''")}'`);
+  res.download(file, `onetop-crm-${today()}.db`, () => fs.rm(file, { force: true }, () => {}));
+});
+
 /* ───────────── 가입 승인 (운영자) ───────────── */
 
 router.get('/signups', requireAuth, isAdmin, (req, res) => {

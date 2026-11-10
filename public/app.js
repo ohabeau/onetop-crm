@@ -1003,6 +1003,9 @@ async function pageSettings(view) {
     ${signups.map((u) => `<tr data-id="${u.id}"><td class="small">${esc(u.created_at.slice(0, 10))}</td><td><b>${esc(u.partner_name || '')}</b></td><td>${esc(u.name)}</td><td>${esc(u.title || '')}</td><td>${esc(u.phone || '')}</td><td>${esc(u.email || '')}</td><td>${esc(u.username)}</td>
       <td><select name="plan" style="width:auto">${['일반', '한비즈 고객사', '프리미엄 수강생', '수강생'].map((p) => `<option>${p}</option>`).join('')}</select></td>
       <td class="row"><button class="btn sm primary" data-ap>승인</button><button class="btn sm danger" data-rj>거절</button></td></tr>`).join('')}</tbody></table></div></div>` : ''}
+  <div class="card" style="margin-bottom:14px"><div class="card-head"><h2>DB 백업 파일 받기</h2></div>
+    <div class="row"><span class="muted small">고객·직원·매출·광고 성과·랜딩페이지가 모두 들어 있는 파일이에요. 새 CRM으로 옮길 때 이 파일을 새 CRM의 [설정 → 원탑 CRM에서 옮겨 오기]에 올리면 돼요.</span><span class="spacer"></span><a class="btn primary" href="/api/admin/backup" download>백업 파일 받기</a></div>
+  </div>
   <div class="grid g2">
     <div class="card"><div class="card-head"><h2>기본 정보</h2></div>
       <form class="form-grid" data-sec>
